@@ -7,7 +7,7 @@
   <license>Apache 2.0</license>
   <keywords>cordova,phonegap,ecosystem:cordova,cordova-android,cordova-ios,android,ios,ionic,camera,cam,camera-preview,preview</keywords>
   <repo>http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite.git</repo>
-  <issue>https://github.com/cordova-plugin-tflite/cordova-plugin-tflite/issues</issue>
+  <issue>http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite/issues</issue>
 
   <js-module src="www/CameraPreview.js" name="CameraPreview">
     <clobbers target="CameraPreview" />

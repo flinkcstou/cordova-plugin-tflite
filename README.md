@@ -658,7 +658,7 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 
 # Sample App
 
-<a href="https://github.com/cordova-plugin-tflite/cordova-plugin-tflite-sample-app">cordova-plugin-tflite-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
+<a href="http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite-sample-app">cordova-plugin-tflite-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
 
 # Screenshots
 
