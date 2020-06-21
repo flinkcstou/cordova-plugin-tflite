@@ -1,3 +1,5 @@
+package com.cordovaplugintflite;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -30,8 +32,6 @@ import org.json.JSONException;
 import java.io.File;
 import java.util.List;
 import java.util.Arrays;
-
-import kz.greetgo.example.R;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -419,7 +419,6 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(containerView.getId(), fragment);
-//        fragmentTransaction.replace(R.id.container, fragment);//.commit();
         fragmentTransaction.commit();
       }
     });

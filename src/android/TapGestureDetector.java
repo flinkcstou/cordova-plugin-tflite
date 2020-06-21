@@ -1,3 +1,5 @@
+package com.cordovaplugintflite;
+
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 

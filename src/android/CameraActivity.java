@@ -1,3 +1,5 @@
+package com.cordovaplugintflite;
+
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.app.Fragment;
@@ -45,8 +47,8 @@ import android.widget.TextView;
 
 import androidx.exifinterface.media.ExifInterface;
 
-import com.cordovaplugincamerapreview.customview.AutoFitTextureView;
-import com.cordovaplugincamerapreview.env.ImageUtils;
+import com.cordovaplugintflite.customview.AutoFitTextureView;
+import com.cordovaplugintflite.env.ImageUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -1,4 +1,4 @@
-package env;
+package com.cordovaplugintflite.env;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;

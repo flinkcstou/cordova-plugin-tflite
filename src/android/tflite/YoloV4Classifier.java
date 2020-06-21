@@ -1,19 +1,4 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================*/
-
-package tflite;
+package com.cordovaplugintflite.tflite;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -21,8 +6,8 @@ import android.graphics.RectF;
 import android.os.Build;
 import android.util.Log;
 
-import com.cordovaplugincamerapreview.env.Logger;
-import com.cordovaplugincamerapreview.env.Utils;
+import com.cordovaplugintflite.env.Logger;
+import com.cordovaplugintflite.env.Utils;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.gpu.GpuDelegate;
@@ -41,7 +26,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Vector;
 
-import static com.cordovaplugincamerapreview.env.Utils.expit;
+import static com.cordovaplugintflite.env.Utils.expit;
 
 /**
  * Wrapper for frozen detection models trained using the Tensorflow Object Detection API:

@@ -1,3 +1,5 @@
+package com.cordovaplugintflite;
+
 import android.Manifest;
 import android.app.Fragment;
 import android.content.Context;
@@ -34,8 +36,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 
-import com.cordovaplugincamerapreview.env.ImageUtils;
-import com.cordovaplugincamerapreview.env.Logger;
+import com.cordovaplugintflite.env.ImageUtils;
+import com.cordovaplugintflite.env.Logger;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.nio.ByteBuffer;

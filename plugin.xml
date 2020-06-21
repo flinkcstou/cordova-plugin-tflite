@@ -14,11 +14,32 @@
   </js-module>
 
   <platform name="android">
-    <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/Preview.java" target-dir="src/com/cordovaplugincamerapreview" />
-    <source-file src="src/android/TapGestureDetector.java" target-dir="src/com/cordovaplugincamerapreview" />
+    <source-file src="src/android/CameraActivity.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/CameraConnectionFragment.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/CameraPreview.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/CustomSurfaceView.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/DetectorActivity.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/DetectorActivityBase.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/DetectorHybridActivity.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/LegacyCameraConnectionFragment.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/Preview.java" target-dir="src/com/cordovaplugintflite" />
+    <source-file src="src/android/TapGestureDetector.java" target-dir="src/com/cordovaplugintflite" />
+
+    <source-file src="src/android/customview/AutoFitTextureView.java" target-dir="src/com/customview/cordovaplugintflite" />
+    <source-file src="src/android/customview/OverlayView.java" target-dir="src/com/customview/cordovaplugintflite" />
+    <source-file src="src/android/customview/RecognitionScoreView.java" target-dir="src/com/customview/cordovaplugintflite" />
+    <source-file src="src/android/customview/ResultsView.java" target-dir="src/com/customview/cordovaplugintflite" />
+
+    <source-file src="src/android/env/BorderedText.java" target-dir="src/com/env/cordovaplugintflite" />
+    <source-file src="src/android/env/ImageUtils.java" target-dir="src/com/env/cordovaplugintflite" />
+    <source-file src="src/android/env/Logger.java" target-dir="src/com/env/cordovaplugintflite" />
+    <source-file src="src/android/env/Utils.java" target-dir="src/com/env/cordovaplugintflite" />
+
+    <source-file src="src/android/tflite/Classifier.java" target-dir="src/com/tflite/cordovaplugintflite" />
+    <source-file src="src/android/tflite/YoloV4Classifier.java" target-dir="src/com/tflite/cordovaplugintflite" />
+
+    <source-file src="src/android/tracking/MultiBoxTracker.java" target-dir="src/com/tracking/cordovaplugintflite" />
+
     <source-file src="src/android/camera_activity.xml" target-dir="res/layout" />
     <source-file src="src/android/camera_theme.xml" target-dir="res/values" />
     <source-file src="src/android/camera_ids.xml" target-dir="res/values" />
@@ -34,7 +55,7 @@
 
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="CameraPreview">
-        <param name="android-package" value="com.cordovaplugincamerapreview.CameraPreview" />
+        <param name="android-package" value="com.cordovaplugintflite.CameraPreview" />
         <param name="onload" value="true" />
       </feature>
     </config-file>
@@ -48,7 +69,7 @@
     </config-file>
 
     <config-file target="AndroidManifest.xml" parent="/manifest/application">
-      <activity android:name="com.cordovaplugincamerapreview.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
+      <activity android:name="com.cordovaplugintflite.CameraActivity" android:screenOrientation="portrait" android:theme="@style/CameraPreviewTheme" />
     </config-file>
   </platform>
 

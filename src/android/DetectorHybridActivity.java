@@ -1,18 +1,4 @@
-/*
- * Copyright 2019 The TensorFlow Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.cordovaplugintflite;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -30,14 +16,14 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
-import com.cordovaplugincamerapreview.customview.OverlayView;
-import com.cordovaplugincamerapreview.customview.OverlayView.DrawCallback;
-import com.cordovaplugincamerapreview.env.BorderedText;
-import com.cordovaplugincamerapreview.env.ImageUtils;
-import com.cordovaplugincamerapreview.env.Logger;
-import com.cordovaplugincamerapreview.tflite.Classifier;
-import com.cordovaplugincamerapreview.tflite.YoloV4Classifier;
-import com.cordovaplugincamerapreview.tracking.MultiBoxTracker;
+import com.cordovaplugintflite.customview.OverlayView;
+import com.cordovaplugintflite.customview.OverlayView.DrawCallback;
+import com.cordovaplugintflite.env.BorderedText;
+import com.cordovaplugintflite.env.ImageUtils;
+import com.cordovaplugintflite.env.Logger;
+import com.cordovaplugintflite.tflite.Classifier;
+import com.cordovaplugintflite.tflite.YoloV4Classifier;
+import com.cordovaplugintflite.tracking.MultiBoxTracker;
 
 import java.io.IOException;
 import java.util.LinkedList;
