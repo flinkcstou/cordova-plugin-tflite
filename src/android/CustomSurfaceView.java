@@ -1,5 +1,3 @@
-package com.cordovaplugincamerapreview;
-
 import android.content.Context;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;

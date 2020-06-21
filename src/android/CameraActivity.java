@@ -1,5 +1,3 @@
-package com.cordovaplugincamerapreview;
-
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.app.Fragment;
@@ -7,7 +5,13 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
+import android.media.Image;
+import android.media.ImageReader;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Trace;
 import android.util.Base64;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -31,15 +35,18 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
 import androidx.exifinterface.media.ExifInterface;
 
-import org.apache.cordova.LOG;
+import com.cordovaplugincamerapreview.customview.AutoFitTextureView;
+import com.cordovaplugincamerapreview.env.ImageUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -48,13 +55,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.Exception;
 import java.lang.Integer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class CameraActivity extends Fragment {
+public abstract class CameraActivity extends Fragment {
 
   public interface CameraPreviewListener {
     void onPictureTaken(String originalPicture);
@@ -71,6 +77,8 @@ public class CameraActivity extends Fragment {
     void onStopRecordVideoError(String error);
   }
 
+//  protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
+
   private CameraPreviewListener eventListener;
   private static final String TAG = "CameraActivity";
   public FrameLayout mainLayout;
@@ -79,7 +87,7 @@ public class CameraActivity extends Fragment {
   private Preview mPreview;
   private boolean canTakePicture = true;
 
-  private View view;
+  protected View view;
   private Camera.Parameters cameraParameters;
   private Camera mCamera;
   private int numberOfCameras;
@@ -112,7 +120,7 @@ public class CameraActivity extends Fragment {
     eventListener = listener;
   }
 
-  private String appResourcesPackage;
+  protected String appResourcesPackage;
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -121,6 +129,13 @@ public class CameraActivity extends Fragment {
     // Inflate the layout for this fragment
     view = inflater.inflate(getResources().getIdentifier("camera_activity", "layout", appResourcesPackage), container, false);
     createCameraPreview();
+
+    textureView = view.findViewById(getResources().getIdentifier("texture", "id", appResourcesPackage));
+
+//    frameValueTextView = view.findViewById(getResources().getIdentifier("frame_info", "id", appResourcesPackage));
+//    cropValueTextView = view.findViewById(getResources().getIdentifier("crop_info", "id", appResourcesPackage));
+//    inferenceTimeTextView = view.findViewById(getResources().getIdentifier("inference_info", "id", appResourcesPackage));
+
     return view;
   }
 
@@ -131,19 +146,19 @@ public class CameraActivity extends Fragment {
     this.height = height;
   }
 
-  private void createCameraPreview(){
+  protected void createCameraPreview(){
     if(mPreview == null) {
       setDefaultCameraId();
 
       //set box position and size
       FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(width, height);
       layoutParams.setMargins(x, y, 0, 0);
-      frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+      frameContainerLayout = view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
       frameContainerLayout.setLayoutParams(layoutParams);
 
       //video view
       mPreview = new Preview(getActivity());
-      mainLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
+      mainLayout = view.findViewById(getResources().getIdentifier("video_view", "id", appResourcesPackage));
       mainLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
       mainLayout.addView(mPreview);
       mainLayout.setEnabled(false);
@@ -284,7 +299,12 @@ public class CameraActivity extends Fragment {
   public void onResume() {
     super.onResume();
 
-    mCamera = Camera.open(defaultCameraId);
+    handlerThread = new HandlerThread("inference");
+    handlerThread.start();
+    handler = new Handler(handlerThread.getLooper());
+
+//    mCamera = Camera.open(getCameraId());
+    mCamera = Camera.open(0);
 
     if (cameraParameters != null) {
       mCamera.setParameters(cameraParameters);
@@ -292,9 +312,11 @@ public class CameraActivity extends Fragment {
 
     cameraCurrentlyLocked = defaultCameraId;
 
+    addPreviewCallback();
+
     if(mPreview.mPreviewSize == null){
       mPreview.setCamera(mCamera, cameraCurrentlyLocked);
-      eventListener.onCameraStarted();
+//      eventListener.onCameraStarted();
     } else {
       mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
       mCamera.startPreview();
@@ -302,7 +324,7 @@ public class CameraActivity extends Fragment {
 
     Log.d(TAG, "cameraCurrentlyLocked:" + cameraCurrentlyLocked);
 
-    final FrameLayout frameContainerLayout = (FrameLayout) view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
+    final FrameLayout frameContainerLayout = view.findViewById(getResources().getIdentifier("frame_container", "id", appResourcesPackage));
 
     ViewTreeObserver viewTreeObserver = frameContainerLayout.getViewTreeObserver();
 
@@ -314,7 +336,7 @@ public class CameraActivity extends Fragment {
           frameContainerLayout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
           Activity activity = getActivity();
           if (isAdded() && activity != null) {
-            final RelativeLayout frameCamContainerLayout = (RelativeLayout) view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
+            final RelativeLayout frameCamContainerLayout = view.findViewById(getResources().getIdentifier("frame_camera_cont", "id", appResourcesPackage));
 
             FrameLayout.LayoutParams camViewLayout = new FrameLayout.LayoutParams(frameContainerLayout.getWidth(), frameContainerLayout.getHeight());
             camViewLayout.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
@@ -325,6 +347,32 @@ public class CameraActivity extends Fragment {
     }
   }
 
+  private void addPreviewCallback() {
+    Camera.Parameters parameters = mCamera.getParameters();
+    List<String> focusModes = parameters.getSupportedFocusModes();
+    if (focusModes != null
+      && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+      parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+    }
+    List<Camera.Size> mCameraSizes = parameters.getSupportedPreviewSizes();
+    Size[] sizes = new Size[mCameraSizes.size()];
+    int i = 0;
+    for (Camera.Size size : mCameraSizes) {
+      sizes[i++] = new Size(size.width, size.height);
+    }
+    Size previewSize =
+      CameraConnectionFragment.chooseOptimalSize(
+        sizes, desiredSize.getWidth(), desiredSize.getHeight());
+    parameters.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
+    mCamera.setDisplayOrientation(90);
+    mCamera.setParameters(parameters);
+
+    mCamera.setPreviewCallbackWithBuffer(this::onPreviewFrame);
+    Camera.Size s = mCamera.getParameters().getPreviewSize();
+    mCamera.addCallbackBuffer(new byte[ImageUtils.getYUVByteSize(s.height, s.width)]);
+    textureView.setAspectRatio(s.height, s.width);
+  }
+
   @Override
   public void onPause() {
     super.onPause();
@@ -333,7 +381,7 @@ public class CameraActivity extends Fragment {
     if (mCamera != null) {
       setDefaultCameraId();
       mPreview.setCamera(null, -1);
-      mCamera.setPreviewCallback(null);
+//      mCamera.setPreviewCallback(null);
       mCamera.release();
       mCamera = null;
     }
@@ -364,7 +412,7 @@ public class CameraActivity extends Fragment {
         mCamera = null;
       }
 
-      Log.d(TAG, "cameraCurrentlyLocked := " + Integer.toString(cameraCurrentlyLocked));
+      Log.d(TAG, "cameraCurrentlyLocked := " + cameraCurrentlyLocked);
       try {
         cameraCurrentlyLocked = (cameraCurrentlyLocked + 1) % numberOfCameras;
         Log.d(TAG, "cameraCurrentlyLocked new: " + cameraCurrentlyLocked);
@@ -395,6 +443,9 @@ public class CameraActivity extends Fragment {
       }
 
       mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+
+//      try {
+      addPreviewCallback();
 
       mCamera.startPreview();
     }
@@ -867,4 +918,156 @@ public class CameraActivity extends Fragment {
 
     return large;
   }
+
+  private Runnable postInferenceCallback;
+  private Runnable imageConverter;
+
+  protected int previewWidth = 0;
+  protected int previewHeight = 0;
+  private boolean useCamera2API;
+  private boolean isProcessingFrame = false;
+  private byte[][] yuvBytes = new byte[3][];
+  private int[] rgbBytes = null;
+  private int yRowStride;
+  private Size desiredSize = getDesiredPreviewFrameSize();
+  private AutoFitTextureView textureView;
+
+  protected int[] getRgbBytes() {
+    imageConverter.run();
+    return rgbBytes;
+  }
+
+  protected int getLuminanceStride() {
+    return yRowStride;
+  }
+
+  protected byte[] getLuminance() {
+    return yuvBytes[0];
+  }
+
+  /** Callback for android.hardware.Camera API */
+  public void onPreviewFrame(final byte[] bytes, final Camera camera) {
+    Log.d(TAG, "onPreviewFrame");
+    if (isProcessingFrame) {
+      Log.w(TAG, "Dropping frame!");
+      return;
+    }
+
+    try {
+      // Initialize the storage bitmaps once when the resolution is known.
+      if (rgbBytes == null) {
+        Camera.Size previewSize = camera.getParameters().getPreviewSize();
+        previewHeight = previewSize.height;
+        previewWidth = previewSize.width;
+        rgbBytes = new int[previewWidth * previewHeight];
+        onPreviewSizeChosen(new Size(previewSize.width, previewSize.height), 90);
+      }
+    } catch (final Exception e) {
+      Log.e(TAG, "Exception!", e);
+      return;
+    }
+
+    isProcessingFrame = true;
+    yuvBytes[0] = bytes;
+    yRowStride = previewWidth;
+
+    imageConverter =
+      new Runnable() {
+        @Override
+        public void run() {
+          ImageUtils.convertYUV420SPToARGB8888(bytes, previewWidth, previewHeight, rgbBytes);
+        }
+      };
+
+    postInferenceCallback =
+      new Runnable() {
+        @Override
+        public void run() {
+          camera.addCallbackBuffer(bytes);
+          isProcessingFrame = false;
+        }
+      };
+    processImage();
+  }
+
+  protected void fillBytes(final Image.Plane[] planes, final byte[][] yuvBytes) {
+    // Because of the variable row stride it's not possible to know in
+    // advance the actual necessary dimensions of the yuv planes.
+    for (int i = 0; i < planes.length; ++i) {
+      final ByteBuffer buffer = planes[i].getBuffer();
+      if (yuvBytes[i] == null) {
+        Log.d(TAG,"Initializing buffer "+i+" at size "+buffer.capacity());
+        yuvBytes[i] = new byte[buffer.capacity()];
+      }
+      buffer.get(yuvBytes[i]);
+    }
+  }
+
+//  protected void showFrameInfo(String frameInfo) {
+//    frameValueTextView.setText(frameInfo);
+//  }
+//
+//  protected void showCropInfo(String cropInfo) {
+//    cropValueTextView.setText(cropInfo);
+//  }
+//
+//  protected void showInference(String inferenceTime) {
+//    inferenceTimeTextView.setText(inferenceTime);
+//  }
+
+  protected int getScreenOrientation() {
+    switch (getActivity().getWindowManager().getDefaultDisplay().getRotation()) {
+      case Surface.ROTATION_270:
+        return 270;
+      case Surface.ROTATION_180:
+        return 180;
+      case Surface.ROTATION_90:
+        return 90;
+      default:
+        return 0;
+    }
+  }
+
+  private Handler handler;
+  private HandlerThread handlerThread;
+
+  protected synchronized void runInBackground(final Runnable r) {
+    if (handler != null) {
+      handler.post(r);
+    }
+  }
+
+  private boolean debug = false;
+
+  public boolean isDebug() {
+    return debug;
+  }
+
+  protected void readyForNextImage() {
+    if (postInferenceCallback != null) {
+      postInferenceCallback.run();
+    }
+  }
+
+  protected abstract void processImage();
+
+  protected abstract void onPreviewSizeChosen(final Size size, final int rotation);
+
+  protected abstract int getLayoutId();
+
+  protected abstract Size getDesiredPreviewFrameSize();
+
+  protected abstract void setNumThreads(int numThreads);
+
+  protected abstract void setUseNNAPI(boolean isChecked);
+
+  private int getCameraId() {
+    Camera.CameraInfo ci = new Camera.CameraInfo();
+    for (int i = 0; i < Camera.getNumberOfCameras(); i++) {
+      Camera.getCameraInfo(i, ci);
+      if (ci.facing == Camera.CameraInfo.CAMERA_FACING_BACK) return i;
+    }
+    return -1; // No camera found
+  }
+
 }

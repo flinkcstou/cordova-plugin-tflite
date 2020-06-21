@@ -1,5 +1,3 @@
-package com.cordovaplugincamerapreview;
-
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 

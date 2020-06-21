@@ -1,5 +1,3 @@
-package com.cordovaplugincamerapreview;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -32,6 +30,8 @@ import org.json.JSONException;
 import java.io.File;
 import java.util.List;
 import java.util.Arrays;
+
+import kz.greetgo.example.R;
 
 public class CameraPreview extends CordovaPlugin implements CameraActivity.CameraPreviewListener {
 
@@ -112,7 +112,71 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     if (START_CAMERA_ACTION.equals(action)) {
       if (cordova.hasPermission(permissions[0])) {
-        return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), args.getBoolean(10), args.getBoolean(11), callbackContext);
+        if (true)
+          return startCamera(args.getInt(0), args.getInt(1), args.getInt(2), args.getInt(3), args.getString(4), args.getBoolean(5), args.getBoolean(6), args.getBoolean(7), args.getString(8), args.getBoolean(9), args.getBoolean(10), args.getBoolean(11), callbackContext);
+//        JSONObject jsonObject = data.getJSONObject(0);
+
+        DisplayMetrics metrics = cordova.getActivity().getResources().getDisplayMetrics();
+
+        // offset
+        int computedX = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(0), metrics);
+        int computedY = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(1), metrics);
+
+        // size
+        int computedWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(2), metrics);
+        int computedHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, args.getInt(3), metrics);
+
+        DetectorActivity x = new DetectorActivity();
+//        x.setEventListener(this);
+
+        startCameraCallbackContext = callbackContext;
+
+        cordova.getActivity().runOnUiThread(() -> {
+          FrameLayout containerView = (FrameLayout)cordova.getActivity().findViewById(containerViewId);
+          if(containerView == null){
+            containerView = new FrameLayout(cordova.getActivity().getApplicationContext());
+            containerView.setId(containerViewId);
+
+            FrameLayout.LayoutParams containerLayoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+            cordova.getActivity().addContentView(containerView, containerLayoutParams);
+          }
+
+          View view = webView.getView();
+          ViewParent rootParent = containerView.getParent();
+          ViewParent curParent = view.getParent();
+
+          view.setBackgroundColor(0x00000000);
+
+          // If parents do not match look for.
+          if(curParent.getParent() != rootParent) {
+            while(curParent != null && curParent.getParent() != rootParent) {
+              curParent = curParent.getParent();
+            }
+
+            if(curParent != null) {
+              ((ViewGroup)curParent).setBackgroundColor(0x00000000);
+              ((ViewGroup)curParent).bringToFront();
+            } else {
+              // Do default...
+              curParent = view.getParent();
+              webViewParent = curParent;
+              ((ViewGroup)view).bringToFront();
+            }
+          }else{
+            // Default
+            webViewParent = curParent;
+            ((ViewGroup)view).bringToFront();
+          }
+
+          //add the fragment to the container
+          FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
+          FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+          fragmentTransaction.add(containerView.getId(), x);
+          fragmentTransaction.commit();
+        });
+
+        return true;
       } else {
         this.execCallback = callbackContext;
         this.execArgs = args;
@@ -278,7 +342,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
 
     final float opacity = Float.parseFloat(alpha);
 
-    fragment = new CameraActivity();
+    fragment = new DetectorHybridActivity();
     fragment.setEventListener(this);
     fragment.defaultCamera = defaultCamera;
     fragment.tapToTakePicture = tapToTakePicture;
@@ -355,6 +419,7 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
         FragmentManager fragmentManager = cordova.getActivity().getFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(containerView.getId(), fragment);
+//        fragmentTransaction.replace(R.id.container, fragment);//.commit();
         fragmentTransaction.commit();
       }
     });
