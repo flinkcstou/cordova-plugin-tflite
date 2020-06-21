@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite"
+    "url": "https://github.com/zateyev/cordova-plugin-tflite"
   },
   "author": {
     "name": "Weston Ganger",
@@ -26,7 +26,7 @@
     "url": "solidfoundationwebdev.com"
   },
   "license": "Apache 2.0",
-  "homepage": "http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite",
+  "homepage": "https://github.com/zateyev/cordova-plugin-tflite",
   "typings": "typescript/CameraPreview.d.ts",
   "dependencies": {
   },

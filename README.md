@@ -32,13 +32,13 @@ Use any one of the installation methods listed below depending on which framewor
 To install the master version with latest fixes and features
 
 ```
-cordova plugin add http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite.git
+cordova plugin add https://github.com/zateyev/cordova-plugin-tflite.git
 
-ionic cordova plugin add http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite.git
+ionic cordova plugin add https://github.com/zateyev/cordova-plugin-tflite.git
 
-meteor add cordova:cordova-plugin-tflite@http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite.git#[latest_commit_id]
+meteor add cordova:cordova-plugin-tflite@https://github.com/zateyev/cordova-plugin-tflite.git#[latest_commit_id]
 
-<plugin spec="http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite.git" source="git" />
+<plugin spec="https://github.com/zateyev/cordova-plugin-tflite.git" source="git" />
 ```
 
 or if you want to use the last released version on npm
@@ -658,7 +658,7 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 
 # Sample App
 
-<a href="http://gitlab.greetgo/aix/card_reader/cordova-plugin-tflite-sample-app">cordova-plugin-tflite-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
+<a href="https://github.com/zateyev/cordova-plugin-tflite-sample-app">cordova-plugin-tflite-sample-app</a> for a complete working Cordova example for Android and iOS platforms.
 
 # Screenshots
 
