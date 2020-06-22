@@ -77,11 +77,12 @@ public abstract class CameraActivity extends Fragment {
     void onStartRecordVideoError(String message);
     void onStopRecordVideo(String file);
     void onStopRecordVideoError(String error);
+    void onObjectDetected(String error);
   }
 
 //  protected TextView frameValueTextView, cropValueTextView, inferenceTimeTextView;
 
-  private CameraPreviewListener eventListener;
+  protected CameraPreviewListener eventListener;
   private static final String TAG = "CameraActivity";
   public FrameLayout mainLayout;
   public FrameLayout frameContainerLayout;

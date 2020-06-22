@@ -38,3 +38,14 @@
 ## v0.0.3 - January 12, 2015
 
 ## v0.0.2 - January 7, 2015
+
+
+cordova create TmpApp
+
+cd TmpApp/
+
+cordova plugin add ../cordova-plugin-tflite/
+
+cordova platform add android
+
+cordova build android

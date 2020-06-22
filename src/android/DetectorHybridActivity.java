@@ -202,6 +202,8 @@ public class DetectorHybridActivity extends CameraActivity {
 
               result.setLocation(location);
               mappedRecognitions.add(result);
+
+              eventListener.onObjectDetected(result.getTitle());
             }
           }
 

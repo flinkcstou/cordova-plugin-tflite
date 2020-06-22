@@ -548,6 +548,14 @@ public class CameraPreview extends CordovaPlugin implements CameraActivity.Camer
     stopRecordVideoCallbackContext.sendPluginResult(result);
   }
 
+  @Override
+  public void onObjectDetected(String object) {
+    PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, object);
+    pluginResult.setKeepCallback(true);
+    startCameraCallbackContext.sendPluginResult(pluginResult);
+//    startCameraCallbackContext.success(object);
+  }
+
   public void onStopRecordVideoError(String err) {
     Log.d(TAG, "onStopRecordVideo error");
 
