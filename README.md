@@ -669,3 +669,10 @@ Note: Use AUTO to allow the device automatically adjusts the exposure once and t
 Maintained by [Weston Ganger](https://westonganger.com) - [@westonganger](https://github.com/westonganger)
 
 Created by Marcel Barbosa Pinto [@mbppower](https://github.com/mbppower)
+
+
+ cordova platform rm android
+ cordova plugin rm cordova-plugin-tflite
+ cordova plugin add ../cordova-plugin-tflite/
+ cordova platform add android
+ cordova build android

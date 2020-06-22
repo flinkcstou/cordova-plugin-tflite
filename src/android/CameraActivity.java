@@ -166,9 +166,9 @@ public abstract class CameraActivity extends Fragment {
       mainLayout.addView(mPreview);
       mainLayout.setEnabled(false);
 
-        if(toBack == false) {
-            this.setupTouchAndBackButton();
-        }
+      if(!toBack) {
+        this.setupTouchAndBackButton();
+      }
 
     }
   }
@@ -307,7 +307,7 @@ public abstract class CameraActivity extends Fragment {
     handler = new Handler(handlerThread.getLooper());
 
 //    mCamera = Camera.open(getCameraId());
-    mCamera = Camera.open(0);
+    mCamera = Camera.open(defaultCameraId);
 
     if (cameraParameters != null) {
       mCamera.setParameters(cameraParameters);
@@ -315,13 +315,15 @@ public abstract class CameraActivity extends Fragment {
 
     cameraCurrentlyLocked = defaultCameraId;
 
-    addPreviewCallback();
+//    addPreviewCallback();
 
     if(mPreview.mPreviewSize == null){
       mPreview.setCamera(mCamera, cameraCurrentlyLocked);
+      addPreviewCallback();
 //      eventListener.onCameraStarted();
     } else {
       mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+      addPreviewCallback();
       mCamera.startPreview();
     }
 
@@ -350,30 +352,52 @@ public abstract class CameraActivity extends Fragment {
     }
   }
 
-  private void addPreviewCallback() {
-    Camera.Parameters parameters = mCamera.getParameters();
-    List<String> focusModes = parameters.getSupportedFocusModes();
-    if (focusModes != null
-      && focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-      parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-    }
-    List<Camera.Size> mCameraSizes = parameters.getSupportedPreviewSizes();
-    Size[] sizes = new Size[mCameraSizes.size()];
-    int i = 0;
-    for (Camera.Size size : mCameraSizes) {
-      sizes[i++] = new Size(size.width, size.height);
-    }
-    Size previewSize =
-      CameraConnectionFragment.chooseOptimalSize(
-        sizes, desiredSize.getWidth(), desiredSize.getHeight());
-    parameters.setPreviewSize(previewSize.getWidth(), previewSize.getHeight());
-    mCamera.setDisplayOrientation(90);
-    mCamera.setParameters(parameters);
+  private final TextureView.SurfaceTextureListener surfaceTextureListener =
+    new TextureView.SurfaceTextureListener() {
+      @Override
+      public void onSurfaceTextureAvailable(
+        final SurfaceTexture texture, final int width, final int height) {
 
+//        int index = getCameraId();
+//        mCamera = Camera.open(index);
+
+        try {
+          mCamera.setPreviewTexture(texture);
+        } catch (IOException exception) {
+          mCamera.release();
+        }
+
+        mCamera.setPreviewCallbackWithBuffer(CameraActivity.this::onPreviewFrame);
+        Camera.Size s = mCamera.getParameters().getPreviewSize();
+        mCamera.addCallbackBuffer(new byte[ImageUtils.getYUVByteSize(s.height, s.width)]);
+
+        textureView.setAspectRatio(s.height, s.width);
+
+        mCamera.startPreview();
+      }
+
+      @Override
+      public void onSurfaceTextureSizeChanged(
+        final SurfaceTexture texture, final int width, final int height) {}
+
+      @Override
+      public boolean onSurfaceTextureDestroyed(final SurfaceTexture texture) {
+        return true;
+      }
+
+      @Override
+      public void onSurfaceTextureUpdated(final SurfaceTexture texture) {}
+    };
+
+  private void addPreviewCallback() {
     mCamera.setPreviewCallbackWithBuffer(this::onPreviewFrame);
     Camera.Size s = mCamera.getParameters().getPreviewSize();
     mCamera.addCallbackBuffer(new byte[ImageUtils.getYUVByteSize(s.height, s.width)]);
-    textureView.setAspectRatio(s.height, s.width);
+    /*if (textureView.isAvailable()) {
+      mCamera.startPreview();
+    } else {
+      textureView.setSurfaceTextureListener(surfaceTextureListener);
+    }*/
   }
 
   @Override
@@ -384,6 +408,7 @@ public abstract class CameraActivity extends Fragment {
     if (mCamera != null) {
       setDefaultCameraId();
       mPreview.setCamera(null, -1);
+//      addPreviewCallback();
 //      mCamera.setPreviewCallback(null);
       mCamera.release();
       mCamera = null;
@@ -411,6 +436,7 @@ public abstract class CameraActivity extends Fragment {
       if (mCamera != null) {
         mCamera.stopPreview();
         mPreview.setCamera(null, -1);
+//        addPreviewCallback();
         mCamera.release();
         mCamera = null;
       }
@@ -446,9 +472,10 @@ public abstract class CameraActivity extends Fragment {
       }
 
       mPreview.switchCamera(mCamera, cameraCurrentlyLocked);
+      addPreviewCallback();
 
 //      try {
-      addPreviewCallback();
+//      addPreviewCallback();
 
       mCamera.startPreview();
     }
