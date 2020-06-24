@@ -39,7 +39,7 @@ import static com.cordovaplugintflite.env.Utils.expit;
  */
 public class YoloV4Classifier implements Classifier {
 
-  public static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.53f;
+  public static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.43f;
 
   /**
    * Initializes a native TensorFlow session for classifying images.

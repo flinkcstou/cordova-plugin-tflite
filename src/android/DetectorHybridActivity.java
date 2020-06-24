@@ -193,7 +193,12 @@ public class DetectorHybridActivity extends CameraActivity {
           final List<Classifier.Recognition> mappedRecognitions =
             new LinkedList<Classifier.Recognition>();
 
+          if (results.isEmpty()) eventListener.onObjectDetected(null);
+
           for (final Classifier.Recognition result : results) {
+//          if (results.size() > 0) {
+//            final Classifier.Recognition result = results.get(0);
+
             final RectF location = result.getLocation();
             if (location != null && result.getConfidence() >= minimumConfidence) {
               canvas.drawRect(location, paint);
@@ -204,6 +209,7 @@ public class DetectorHybridActivity extends CameraActivity {
               mappedRecognitions.add(result);
 
               eventListener.onObjectDetected(result.getTitle());
+              break;
             }
           }
 
