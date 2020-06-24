@@ -39,7 +39,7 @@ import static com.cordovaplugintflite.env.Utils.expit;
  */
 public class YoloV4Classifier implements Classifier {
 
-  public static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.65f;
+  public static final float MINIMUM_CONFIDENCE_TF_OD_API = 0.53f;
 
   /**
    * Initializes a native TensorFlow session for classifying images.
@@ -217,7 +217,7 @@ public class YoloV4Classifier implements Classifier {
     return nmsList;
   }
 
-  protected float mNmsThresh = 0.1f;
+  protected float mNmsThresh = 0.01f;
 
   protected float box_iou(RectF a, RectF b) {
     return box_intersection(a, b) / box_union(a, b);
